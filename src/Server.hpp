@@ -60,6 +60,7 @@ public:
 private:
    ifstream p1_setup_board;
    ifstream p2_setup_board;
+   char *players[2];
 
 public:
    /**
