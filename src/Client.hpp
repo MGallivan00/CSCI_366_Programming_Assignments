@@ -52,10 +52,10 @@ public:
 class Client {
 private:
     unsigned int player;
-    string board_name;
 public:
     unsigned int board_size;
     bool initialized = false;
+
 
 public:
     /**
@@ -106,5 +106,3 @@ public:
     string render_action_board();
 
 };
-
-
