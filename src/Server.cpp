@@ -17,6 +17,7 @@
 #include "common.hpp"
 #include "Server.hpp"
 #include "cereal/archives/json.hpp"
+#include <algorithm>
 
 /**
  * Calculate the length of a file (helper function)
@@ -52,16 +53,21 @@ void Server::initialize(unsigned int board_size,
             throw 0;
         }
 
-        while (getline(board, line)) { //gets line
+        while (getline(board, line) && !line.empty()) { //gets line
 
-            if (line.length() != board_size) {
-                cout << "wrong board size" << endl;
-                throw 0;
-            }
+            //removes white spaces
+            line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
 
             //loops through each character of the line and assigns it to players[i]
             for (int j = 0; j < line.length(); j++) {
                 players[i][(rows * board_size) + j] = line[j];
+            }
+
+            //will not catch correct board size with spaces at the end
+            //so we remove spaces
+            if (line.length() != board_size) {
+                cout << "wrong board size" << endl;
+                throw 0;
             }
 
             rows++;
@@ -81,12 +87,12 @@ void Server::initialize(unsigned int board_size,
 int Server::evaluate_shot(unsigned int player, unsigned int x, unsigned int y) {
 
     //catches bad player number
-    if(player < 1 || player > MAX_PLAYERS){
+    if (player < 1 || player > MAX_PLAYERS) {
         cout << "Bad player number" << endl;
         throw 0;
     }
 
-    char *board = players[player - 1]; //make it the other player's setup board 3-2=1 or 3-1=2
+    char *board = players[3 - player - 1]; //make it the other player's setup board 3-2=1 or 3-1=2
     char shot;
     int result = MISS;
 
@@ -95,7 +101,7 @@ int Server::evaluate_shot(unsigned int player, unsigned int x, unsigned int y) {
         result = OUT_OF_BOUNDS;
     } else {
         //assigns the shot to a variable
-        shot = board[(x * board_size) + y];
+        shot = board[(y * board_size) + x];
 
         //detects if it is a hit or miss
         if (shot == 'C' || shot == 'D' || shot == 'R' || shot == 'B' || shot == 'S') {
@@ -118,15 +124,19 @@ int Server::process_shot(unsigned int player) {
 
     string get_coor = "player_" + to_string(player) + ".shot.json";
 
+    //reads in the coordinates
     int x, y;
     ifstream coordinates(get_coor);
     cereal::JSONInputArchive ina(coordinates);
     ina(x, y);
+
+    //removes unnecessary files so shot can be processed again
     std::remove("player_1.shot.json");
     std::remove("player_2.shot.json");
 
     result = evaluate_shot((player), x, y); //set x and y
 
+    //writes out the result
     string fn = "player_" + to_string(player) + ".result.json";
     ofstream shot_file(fn);
     cereal::JSONOutputArchive outa(shot_file);

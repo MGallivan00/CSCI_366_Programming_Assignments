@@ -65,6 +65,12 @@ TEST_F(ServerInitialize, Correct_Board_Size){
     ASSERT_NO_THROW(srv.initialize(BOARD_SIZE, "player_1.setup_board.txt", "player_2.setup_board.txt"));
 }
 
+/*
+TEST_F(ServerInitialize, Wrong_Line_Length){
+    ASSERT_ANY_THROW(srv.initialize(BOARD_SIZE, "player_1.setup_board.txt", "player_2.setup_board.txt"));
+}
+*/
+
 TEST_F(ServerInitialize, Wrong_Board_Size){
     ASSERT_ANY_THROW(srv.initialize(BOARD_SIZE-1, "player_1.setup_board.txt", "player_2.setup_board.txt"));
 }
